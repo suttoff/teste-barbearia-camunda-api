@@ -1,0 +1,20 @@
+spring.datasource.url: jdbc:h2:file:./camunda-h2-database
+
+camunda.bpm.admin-user:
+  id: admin
+  password: admin
+  authorization:
+    enabled: true
+
+barbearia:
+  url: http://localhost:8181
+
+rest:
+  request:
+    timeout:
+      connect: ${REST_TIMEOUT_CONNECT}
+      read: ${REST_TIMEOUT_READ}
+
+
+REST_TIMEOUT_CONNECT: 15000
+REST_TIMEOUT_READ: 50000

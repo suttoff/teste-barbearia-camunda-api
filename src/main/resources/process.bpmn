@@ -1,0 +1,198 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<bpmn:definitions xmlns:bpmn="http://www.omg.org/spec/BPMN/20100524/MODEL" xmlns:bpmndi="http://www.omg.org/spec/BPMN/20100524/DI" xmlns:dc="http://www.omg.org/spec/DD/20100524/DC" xmlns:di="http://www.omg.org/spec/DD/20100524/DI" xmlns:camunda="http://camunda.org/schema/1.0/bpmn" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" id="Definitions_0fr9mxs" targetNamespace="http://bpmn.io/schema/bpmn" exporter="Camunda Modeler" exporterVersion="4.8.1">
+  <bpmn:process id="BarbeariaProcess" name="Barbearia" isExecutable="true" camunda:versionTag="0.0.1" camunda:isStartableInTasklist="false">
+    <bpmn:startEvent id="IniciaProcessoStartEvent" name="Inicia processo">
+      <bpmn:outgoing>SequenceFlow_1fp17al</bpmn:outgoing>
+    </bpmn:startEvent>
+    <bpmn:sequenceFlow id="SequenceFlow_1fp17al" sourceRef="IniciaProcessoStartEvent" targetRef="CriarAgendamentoTask" />
+    <bpmn:endEvent id="FinalizaProcessoEndEvent" name="Finaliza processo">
+      <bpmn:incoming>Flow_0painef</bpmn:incoming>
+    </bpmn:endEvent>
+    <bpmn:serviceTask id="VerificarAtendentesOnlineTask" name="Verificar Atendentes online" camunda:asyncBefore="true" camunda:delegateExpression="${CheckAttendantsDelegate}">
+      <bpmn:incoming>Flow_0ffiv01</bpmn:incoming>
+      <bpmn:outgoing>Flow_0dqjju9</bpmn:outgoing>
+    </bpmn:serviceTask>
+    <bpmn:sequenceFlow id="Flow_1hjfue5" sourceRef="AguardarBarbeiro" targetRef="EnviarNotificacaoTask" />
+    <bpmn:serviceTask id="VerificarCarteiraDeClienteTask" name="Verificar carteira de cliente" camunda:asyncBefore="true" camunda:delegateExpression="${MostTelatedAttendantDelegate}">
+      <bpmn:incoming>Flow_1lh5bjq</bpmn:incoming>
+      <bpmn:outgoing>Flow_154y88a</bpmn:outgoing>
+    </bpmn:serviceTask>
+    <bpmn:userTask id="AguardarBarbeiro" name="Aguardar aprovação do profissional" camunda:candidateUsers="${mostRelated}">
+      <bpmn:incoming>Flow_154y88a</bpmn:incoming>
+      <bpmn:outgoing>Flow_1hjfue5</bpmn:outgoing>
+    </bpmn:userTask>
+    <bpmn:sequenceFlow id="Flow_1r1orbz" sourceRef="EscalonarAutomaticamenteTask" targetRef="AguardarGestor" />
+    <bpmn:sequenceFlow id="Flow_15ykzw5" sourceRef="EnviarNotificacaoTask" targetRef="AtualizarAgendamentoTask" />
+    <bpmn:sequenceFlow id="Flow_0painef" sourceRef="AtualizarAgendamentoTask" targetRef="FinalizaProcessoEndEvent" />
+    <bpmn:serviceTask id="CriarAgendamentoTask" name="Criar agendamento" camunda:asyncBefore="true" camunda:delegateExpression="${CreateSchedulingDelegate}">
+      <bpmn:incoming>SequenceFlow_1fp17al</bpmn:incoming>
+      <bpmn:outgoing>Flow_0ffiv01</bpmn:outgoing>
+    </bpmn:serviceTask>
+    <bpmn:sequenceFlow id="Flow_0ffiv01" sourceRef="CriarAgendamentoTask" targetRef="VerificarAtendentesOnlineTask" />
+    <bpmn:serviceTask id="EscalonarAutomaticamenteTask" name="Escalonar Automaticamente" camunda:delegateExpression="${AutoScaleDelegate}">
+      <bpmn:incoming>Flow_095qaex</bpmn:incoming>
+      <bpmn:incoming>NaoClienteSequenceFlow</bpmn:incoming>
+      <bpmn:outgoing>Flow_1r1orbz</bpmn:outgoing>
+    </bpmn:serviceTask>
+    <bpmn:serviceTask id="EnviarNotificacaoTask" name="Enviar notificação" camunda:delegateExpression="${SendPushDelegate}">
+      <bpmn:incoming>Flow_1hjfue5</bpmn:incoming>
+      <bpmn:outgoing>Flow_15ykzw5</bpmn:outgoing>
+    </bpmn:serviceTask>
+    <bpmn:serviceTask id="AtualizarAgendamentoTask" name="Atualizar agendamento" camunda:delegateExpression="${UpdateSchedulingDelegate}">
+      <bpmn:incoming>Flow_15ykzw5</bpmn:incoming>
+      <bpmn:incoming>Flow_0xjkzap</bpmn:incoming>
+      <bpmn:outgoing>Flow_0painef</bpmn:outgoing>
+    </bpmn:serviceTask>
+    <bpmn:sequenceFlow id="Flow_0xjkzap" sourceRef="EnviarNotificacaoTask1" targetRef="AtualizarAgendamentoTask" />
+    <bpmn:serviceTask id="EnviarNotificacaoTask1" name="Enviar notificação" camunda:delegateExpression="${SendPushDelegate}">
+      <bpmn:incoming>Flow_0a10dgo</bpmn:incoming>
+      <bpmn:outgoing>Flow_0xjkzap</bpmn:outgoing>
+    </bpmn:serviceTask>
+    <bpmn:sequenceFlow id="Flow_095qaex" sourceRef="EscalonamentoBoundaryEvent" targetRef="EscalonarAutomaticamenteTask" />
+    <bpmn:boundaryEvent id="EscalonamentoBoundaryEvent" name="Escalonamento" attachedToRef="AguardarBarbeiro">
+      <bpmn:outgoing>Flow_095qaex</bpmn:outgoing>
+      <bpmn:timerEventDefinition id="TimerEventDefinition_0sdq4z4">
+        <bpmn:timeDuration xsi:type="bpmn:tFormalExpression">PT10M</bpmn:timeDuration>
+      </bpmn:timerEventDefinition>
+    </bpmn:boundaryEvent>
+    <bpmn:serviceTask id="VerificarClienteTask" name="Verificar cliente" camunda:delegateExpression="${VerifyClientDelegate}">
+      <bpmn:incoming>Flow_0dqjju9</bpmn:incoming>
+      <bpmn:outgoing>Flow_1y3flu0</bpmn:outgoing>
+    </bpmn:serviceTask>
+    <bpmn:exclusiveGateway id="Gateway_0hh54ty">
+      <bpmn:incoming>Flow_1y3flu0</bpmn:incoming>
+      <bpmn:outgoing>Flow_1lh5bjq</bpmn:outgoing>
+      <bpmn:outgoing>NaoClienteSequenceFlow</bpmn:outgoing>
+    </bpmn:exclusiveGateway>
+    <bpmn:sequenceFlow id="Flow_1lh5bjq" sourceRef="Gateway_0hh54ty" targetRef="VerificarCarteiraDeClienteTask">
+      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">${isClient}</bpmn:conditionExpression>
+    </bpmn:sequenceFlow>
+    <bpmn:sequenceFlow id="NaoClienteSequenceFlow" name="Não cliente" sourceRef="Gateway_0hh54ty" targetRef="EscalonarAutomaticamenteTask">
+      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">${!isClient}</bpmn:conditionExpression>
+    </bpmn:sequenceFlow>
+    <bpmn:sequenceFlow id="Flow_0dqjju9" sourceRef="VerificarAtendentesOnlineTask" targetRef="VerificarClienteTask" />
+    <bpmn:sequenceFlow id="Flow_1y3flu0" sourceRef="VerificarClienteTask" targetRef="Gateway_0hh54ty" />
+    <bpmn:sequenceFlow id="Flow_0a10dgo" sourceRef="AguardarGestor" targetRef="EnviarNotificacaoTask1" />
+    <bpmn:userTask id="AguardarGestor" name="Aguardar aprovação do gestor" camunda:candidateUsers="${managerCode}">
+      <bpmn:incoming>Flow_1r1orbz</bpmn:incoming>
+      <bpmn:outgoing>Flow_0a10dgo</bpmn:outgoing>
+    </bpmn:userTask>
+    <bpmn:sequenceFlow id="Flow_154y88a" sourceRef="VerificarCarteiraDeClienteTask" targetRef="AguardarBarbeiro" />
+  </bpmn:process>
+  <bpmndi:BPMNDiagram id="BPMNDiagram_1">
+    <bpmndi:BPMNPlane id="BPMNPlane_1" bpmnElement="BarbeariaProcess">
+      <bpmndi:BPMNEdge id="Flow_154y88a_di" bpmnElement="Flow_154y88a">
+        <di:waypoint x="1170" y="117" />
+        <di:waypoint x="1370" y="117" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_0a10dgo_di" bpmnElement="Flow_0a10dgo">
+        <di:waypoint x="1760" y="270" />
+        <di:waypoint x="1880" y="270" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_1y3flu0_di" bpmnElement="Flow_1y3flu0">
+        <di:waypoint x="800" y="117" />
+        <di:waypoint x="915" y="117" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_0dqjju9_di" bpmnElement="Flow_0dqjju9">
+        <di:waypoint x="610" y="117" />
+        <di:waypoint x="700" y="117" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_01quju9_di" bpmnElement="NaoClienteSequenceFlow">
+        <di:waypoint x="940" y="142" />
+        <di:waypoint x="940" y="270" />
+        <di:waypoint x="1420" y="270" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="872" y="203" width="56" height="14" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_1lh5bjq_di" bpmnElement="Flow_1lh5bjq">
+        <di:waypoint x="965" y="117" />
+        <di:waypoint x="1070" y="117" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_095qaex_di" bpmnElement="Flow_095qaex">
+        <di:waypoint x="1470" y="175" />
+        <di:waypoint x="1470" y="230" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_0xjkzap_di" bpmnElement="Flow_0xjkzap">
+        <di:waypoint x="1980" y="270" />
+        <di:waypoint x="2170" y="270" />
+        <di:waypoint x="2170" y="157" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_0ffiv01_di" bpmnElement="Flow_0ffiv01">
+        <di:waypoint x="410" y="117" />
+        <di:waypoint x="510" y="117" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_0painef_di" bpmnElement="Flow_0painef">
+        <di:waypoint x="2220" y="117" />
+        <di:waypoint x="2362" y="117" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_15ykzw5_di" bpmnElement="Flow_15ykzw5">
+        <di:waypoint x="1980" y="117" />
+        <di:waypoint x="2120" y="117" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_1r1orbz_di" bpmnElement="Flow_1r1orbz">
+        <di:waypoint x="1520" y="270" />
+        <di:waypoint x="1660" y="270" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_1hjfue5_di" bpmnElement="Flow_1hjfue5">
+        <di:waypoint x="1470" y="117" />
+        <di:waypoint x="1880" y="117" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="SequenceFlow_1fp17al_di" bpmnElement="SequenceFlow_1fp17al">
+        <di:waypoint x="208" y="117" />
+        <di:waypoint x="310" y="117" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNShape id="_BPMNShape_StartEvent_2" bpmnElement="IniciaProcessoStartEvent">
+        <dc:Bounds x="172" y="99" width="36" height="36" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="154" y="142" width="74" height="14" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Activity_17l2ydq_di" bpmnElement="VerificarAtendentesOnlineTask">
+        <dc:Bounds x="510" y="77" width="100" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Activity_08ffclm_di" bpmnElement="VerificarCarteiraDeClienteTask">
+        <dc:Bounds x="1070" y="77" width="100" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Activity_0qjkpvp_di" bpmnElement="AguardarBarbeiro">
+        <dc:Bounds x="1370" y="77" width="100" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Activity_18uom5r_di" bpmnElement="CriarAgendamentoTask">
+        <dc:Bounds x="310" y="77" width="100" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Activity_0ulamiv_di" bpmnElement="EscalonarAutomaticamenteTask">
+        <dc:Bounds x="1420" y="230" width="100" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Activity_1bvyrpo_di" bpmnElement="EnviarNotificacaoTask">
+        <dc:Bounds x="1880" y="77" width="100" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Activity_1wt7ghx_di" bpmnElement="AtualizarAgendamentoTask">
+        <dc:Bounds x="2120" y="77" width="100" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Activity_0iyapxl_di" bpmnElement="EnviarNotificacaoTask1">
+        <dc:Bounds x="1880" y="230" width="100" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Activity_15pb19o_di" bpmnElement="VerificarClienteTask">
+        <dc:Bounds x="700" y="77" width="100" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Gateway_0hh54ty_di" bpmnElement="Gateway_0hh54ty" isMarkerVisible="true">
+        <dc:Bounds x="915" y="92" width="50" height="50" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Activity_1ocunm1_di" bpmnElement="AguardarGestor">
+        <dc:Bounds x="1660" y="230" width="100" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="EndEvent_0x6ir2l_di" bpmnElement="FinalizaProcessoEndEvent">
+        <dc:Bounds x="2362" y="99" width="36" height="36" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="2337" y="142" width="86" height="14" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Event_0cdh8zw_di" bpmnElement="EscalonamentoBoundaryEvent">
+        <dc:Bounds x="1452" y="139" width="36" height="36" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="1498" y="150" width="76" height="14" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+    </bpmndi:BPMNPlane>
+  </bpmndi:BPMNDiagram>
+</bpmn:definitions>
