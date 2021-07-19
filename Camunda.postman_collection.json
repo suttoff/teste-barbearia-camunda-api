@@ -1,0 +1,112 @@
+{
+	"info": {
+		"_postman_id": "4c13d6e8-f89f-4290-a24c-42cfe57ceafe",
+		"name": "Camunda",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+	},
+	"item": [
+		{
+			"name": "Api Java",
+			"item": [
+				{
+					"name": "Cria Agendamento",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"id\": \"000020\",\n    \"client\": {\n        \"id\": \"57\",\n        \"name\": \"José Silva\"\n    },\n    //\"date\": \"2021-07-01'T'13:30:00\",\n    \"managerCode\": \"GER01\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://localhost:8080/scheduling",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8080",
+							"path": [
+								"scheduling"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Aprova Gestor",
+					"request": {
+						"method": "PUT",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n\"message\": \"teste\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "localhost:8080/scheduling/manager/:id",
+							"host": [
+								"localhost"
+							],
+							"port": "8080",
+							"path": [
+								"scheduling",
+								"manager",
+								":id"
+							],
+							"variable": [
+								{
+									"key": "id",
+									"value": "000022"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Aprova Barbeiro",
+					"request": {
+						"method": "PUT",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n\"message\": \"teste\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "localhost:8080/scheduling/barber/:id",
+							"host": [
+								"localhost"
+							],
+							"port": "8080",
+							"path": [
+								"scheduling",
+								"barber",
+								":id"
+							],
+							"variable": [
+								{
+									"key": "id",
+									"value": "000022"
+								}
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		}
+	]
+}
